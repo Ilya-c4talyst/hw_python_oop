@@ -164,16 +164,21 @@ def read_package(workout_type: str, data: List[float]) -> Training:
         'RUN': Running,
         'WLK': SportsWalking
     }
-    if workout_type in TYPES_OF_ACTIVITY:
-        return TYPES_OF_ACTIVITY[workout_type](*data)
-    else:
-        raise KeyError('Некорректный тип тренировки. Проверьте ввод.')
+    if workout_type not in TYPES_OF_ACTIVITY:
+        raise ValueError(
+            f'Ошибка при вводе типа тренировки. '
+            f'"{workout_type}" нет в списке доступных тренировок. '
+            f'Доступны лишь значения: '
+            f'"SWM" для тренировки типа "Swimming", '
+            f'"RUN" для тренировки типа "Running", '
+            f'"WLK" для тренировки типа "SportsWalking".'
+        )
+    return TYPES_OF_ACTIVITY[workout_type](*data)
 
 
-def main(training: Training) -> str:
+def main(training: Type[Training]) -> str:
     """Главная функция."""
-    info: InfoMessage = training.show_training_info()
-    print(info.get_message())
+    print(training.show_training_info().get_message())
 
 
 if __name__ == '__main__':
