@@ -164,14 +164,13 @@ def read_package(workout_type: str, data: List[float]) -> Training:
         'RUN': Running,
         'WLK': SportsWalking
     }
+    ACCEPTABLE_VALUES = ", ".join(TYPES_OF_ACTIVITY)
     if workout_type not in TYPES_OF_ACTIVITY:
         raise ValueError(
-            f'Ошибка при вводе типа тренировки. '
-            f'"{workout_type}" нет в списке доступных тренировок. '
-            f'Доступны лишь значения: '
-            f'"SWM" для тренировки типа "Swimming", '
-            f'"RUN" для тренировки типа "Running", '
-            f'"WLK" для тренировки типа "SportsWalking".'
+            'Ошибка при вводе типа тренировки. '
+            f'<< {workout_type} >> нет в списке доступных тренировок. '
+            'Доступны лишь значения: '
+            f'{ACCEPTABLE_VALUES}.'
         )
     return TYPES_OF_ACTIVITY[workout_type](*data)
 
