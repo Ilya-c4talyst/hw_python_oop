@@ -1,4 +1,5 @@
 from dataclasses import dataclass, asdict
+from typing import Type
 
 
 @dataclass
@@ -10,26 +11,24 @@ class InfoMessage:
     distance: float
     speed: float
     calories: float
-    INFORMATION_MESSAGE: str = 'Информационное сообщение'
+    INFORMATION_MESSAGE: str = (
+        'Тип тренировки: {training_type}; '
+        'Длительность: {duration:.3f} ч.; '
+        'Дистанция: {distance:.3f} км; '
+        'Ср. скорость: {speed:.3f} км/ч; '
+        'Потрачено ккал: {calories:.3f}.'
+    )
 
     def get_message(self) -> str:
         """Вывод сообщения на экран."""
-        INFORMATION_MESSAGE = (
-            'Тип тренировки: {training_type}; '
-            'Длительность: {duration:.3f} ч.; '
-            'Дистанция: {distance:.3f} км; '
-            'Ср. скорость: {speed:.3f} км/ч; '
-            'Потрачено ккал: {calories:.3f}.'
-        )
-        INFORMATION_MESSAGE = INFORMATION_MESSAGE.format(**asdict(self))
-        return INFORMATION_MESSAGE
+        return self.INFORMATION_MESSAGE.format(**asdict(self))
 
 
 class Training:
     """Базовый класс тренировки."""
-    LEN_STEP: float = 0.65
-    M_IN_KM: float = 1000.0
-    MIN_IN_H: float = 60.0
+    LEN_STEP = 0.65
+    M_IN_KM = 1000.0
+    MIN_IN_H = 60.0
 
     def __init__(
         self,
@@ -52,12 +51,9 @@ class Training:
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        try:
-            raise NotImplementedError(
-                'The function is intended for child classes.'
-            )
-        except NotImplementedError:
-            print('Выполните эту функцию для дочерних классов.')
+        raise NotImplementedError(
+            'Выполните эту функцию для дочерних классов.'
+        )
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
@@ -72,9 +68,9 @@ class Training:
 
 class Running(Training):
     """Тренировка: бег."""
-    CALORIES_MEAN_SPEED_MULTIPLIER: float = 18.0
-    CALORIES_MEAN_SPEED_SHIFT: float = 1.79
-    LEN_STEP: float = 0.65
+    CALORIES_MEAN_SPEED_MULTIPLIER = 18.0
+    CALORIES_MEAN_SPEED_SHIFT = 1.79
+    LEN_STEP = 0.65
 
     def get_spent_calories(self) -> float:
         """Получить количество потраченных калорий."""
@@ -90,11 +86,11 @@ class Running(Training):
 
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
-    LEN_STEP: float = 0.65
-    CALORIES_WEIGHT_MULTIPLIER: float = 0.035
-    CALORIES_SPEED_HEIGHT_MULTIPLIER: float = 0.029
-    KMH_IN_MSEC: float = 0.278
-    CM_IN_M: float = 100.0
+    LEN_STEP = 0.65
+    CALORIES_WEIGHT_MULTIPLIER = 0.035
+    CALORIES_SPEED_HEIGHT_MULTIPLIER = 0.029
+    KMH_IN_MSEC = 0.278
+    CM_IN_M = 100.0
 
     def __init__(
         self,
@@ -125,9 +121,9 @@ class SportsWalking(Training):
 
 class Swimming(Training):
     """Тренировка: плавание."""
-    LEN_STEP: float = 1.38
-    SWIMMING_MEAN_SPEED_SHIFT: float = 1.1
-    SWIMMING_MEAN_SPEED_MULTIPLIE: float = 2.0
+    LEN_STEP = 1.38
+    SWIMMING_MEAN_SPEED_SHIFT = 1.1
+    SWIMMING_MEAN_SPEED_MULTIPLIE = 2.0
 
     def __init__(
         self, action: float,
@@ -161,14 +157,17 @@ class Swimming(Training):
         )
 
 
-def read_package(workout_type: str, data: list) -> Training:
+def read_package(workout_type: str, data: list[float]) -> Training:
     """Прочитать данные полученные от датчиков."""
-    TYPES_OF_ACTIVITY: dict[str, Training] = {
+    TYPES_OF_ACTIVITY: dict[str, Type[Training]] = {
         'SWM': Swimming,
         'RUN': Running,
         'WLK': SportsWalking
     }
-    return TYPES_OF_ACTIVITY[workout_type](*data)
+    if workout_type in TYPES_OF_ACTIVITY:
+        return TYPES_OF_ACTIVITY[workout_type](*data)
+    else:
+        raise KeyError('Некорректный тип тренировки. Проверьте ввод')
 
 
 def main(training: Training) -> str:
@@ -177,17 +176,12 @@ def main(training: Training) -> str:
     print(info.get_message())
 
 
-try:
-    if __name__ == '__main__':
-        packages = [
-            ('SWM', [720, 1, 80, 25, 40]),
-            ('RUN', [15000, 1, 75]),
-            ('WLK', [9000, 1, 75, 180]),
-        ]
+if __name__ == '__main__':
+    packages = [
+        ('SWM', [720, 1, 80, 25, 40]),
+        ('RUN', [15000, 1, 75]),
+        ('WLK', [9000, 1, 75, 180]),
+    ]
 
-        for workout_type, data in packages:
-            main(read_package(workout_type, data))
-except KeyError:
-    print('Неккоректное название вида тренировки, проверьте ввод.')
-except TypeError:
-    print('Неккоректные показания датчиков. Проверьте ввод.')
+    for workout_type, data in packages:
+        main(read_package(workout_type, data))
