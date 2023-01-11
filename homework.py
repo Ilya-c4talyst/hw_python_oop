@@ -20,7 +20,7 @@ class InfoMessage:
     )
 
     def get_message(self) -> str:
-        """Вывод сообщения на экран."""
+        """Получение сообщения о тренировке."""
         return self.INFORMATION_MESSAGE.format(**asdict(self))
 
 
@@ -164,13 +164,13 @@ def read_package(workout_type: str, data: List[float]) -> Training:
         'RUN': Running,
         'WLK': SportsWalking
     }
-    ACCEPTABLE_VALUES = ", ".join(TYPES_OF_ACTIVITY)
     if workout_type not in TYPES_OF_ACTIVITY:
+        acceptable_values = ", ".join(TYPES_OF_ACTIVITY)
         raise ValueError(
             'Ошибка при вводе типа тренировки. '
             f'<< {workout_type} >> нет в списке доступных тренировок. '
             'Доступны лишь значения: '
-            f'{ACCEPTABLE_VALUES}.'
+            f'{acceptable_values}.'
         )
     return TYPES_OF_ACTIVITY[workout_type](*data)
 
